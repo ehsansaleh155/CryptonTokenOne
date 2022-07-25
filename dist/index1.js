@@ -49,8 +49,8 @@ We need to create below accoutns:
     // PDA of tokenSwapAccount for token swap program
     const [poolAuthority, _bumpSeed] = yield web3_js_1.PublicKey.findProgramAddress([poolState.publicKey.toBuffer()], spl_token_swap_1.TOKEN_SWAP_PROGRAM_ID);
     //airdrop in poolState and poolFee accounts
-    yield connection.confirmTransaction(yield connection.requestAirdrop(poolState.publicKey, web3_js_1.LAMPORTS_PER_SOL));
-    yield connection.confirmTransaction(yield connection.requestAirdrop(poolFee.publicKey, web3_js_1.LAMPORTS_PER_SOL));
+    yield connection.confirmTransaction(yield connection.requestAirdrop(poolState.publicKey, 3 * web3_js_1.LAMPORTS_PER_SOL));
+    yield connection.confirmTransaction(yield connection.requestAirdrop(poolFee.publicKey, 2 * web3_js_1.LAMPORTS_PER_SOL));
     /*
     //creat PDA for poolAuthority
     const instruction = SystemProgram.createAccount({
@@ -78,28 +78,22 @@ We need to create below accoutns:
     //mint token A
     const mintA = yield (0, spl_token_1.createMint)(connection, poolFee, tokenA.publicKey, poolAuthority, 5 // We are using 5 for decimal
     );
-    //const mintAInfo = await getMint(
-    //    connection,
-    //    mintA
-    //);
+    const mintAInfo = yield (0, spl_token_1.getMint)(connection, mintA);
     const tokenAAccount = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, poolFee, mintA, poolFee.publicKey);
     const tokenAAccountInfo = yield (0, spl_token_1.getAccount)(connection, tokenAAccount.address);
     yield (0, spl_token_1.mintTo)(connection, poolFee, mintA, tokenAAccount.address, poolFee, 4000000 // because decimals for the mint are set to 5 => 40
     );
-    //console.log("Mint A balance: ", mintAInfo.supply);
+    console.log("Mint A balance: ", mintAInfo.supply);
     console.log("Token A account balance: ", tokenAAccountInfo.amount);
     //mint token B
     const mintB = yield (0, spl_token_1.createMint)(connection, poolFee, tokenB.publicKey, poolAuthority, 6 // different token decimal
     );
-    //const mintBInfo = await getMint(
-    //    connection,
-    //    mintB
-    //);
+    const mintBInfo = yield (0, spl_token_1.getMint)(connection, mintB);
     const tokenBAccount = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, poolFee, mintB, poolFee.publicKey);
     const tokenBAccountInfo = yield (0, spl_token_1.getAccount)(connection, tokenBAccount.address);
     yield (0, spl_token_1.mintTo)(connection, poolFee, mintB, tokenBAccount.address, poolFee, 700000000 // because decimals for the mint are set to 6 => 700
     );
-    //console.log("Mint B balance: ", mintBInfo.supply);
+    console.log("Mint B balance: ", mintBInfo.supply);
     console.log("Token B account balance: ", tokenBAccountInfo.amount);
     //Now the pool is created and A_total * B_total = 40 * 700 = 28e3 = invarient
     // Get the token accounts of the tokenRecipient address, and if they do not exist, create thtem
@@ -180,4 +174,4 @@ We need to create below accoutns:
         }
     }
 }))();
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index1.js.map
