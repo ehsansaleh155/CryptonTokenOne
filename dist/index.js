@@ -27,23 +27,10 @@ We need to create below accoutns:
 (() => __awaiter(void 0, void 0, void 0, function* () {
     // connection
     const connection = new web3_js_1.Connection((0, web3_js_1.clusterApiUrl)("devnet"), "confirmed");
-    //variables
-    const SWAP_PROGRAM_OWNER_FEE_ADDRESS = process.env.SWAP_PROGRAM_OWNER_FEE_ADDRESS;
-    const TRADING_FEE_NUMERATOR = 25;
-    const TRADING_FEE_DENOMINATOR = 10000;
-    const OWNER_TRADING_FEE_NUMERATOR = 5;
-    const OWNER_TRADING_FEE_DENOMINATOR = 10000;
-    const OWNER_WITHDRAW_FEE_NUMERATOR = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 0 : 1;
-    const OWNER_WITHDRAW_FEE_DENOMINATOR = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 0 : 6;
-    const HOST_FEE_NUMERATOR = 20;
-    const HOST_FEE_DENOMINATOR = 100;
     // accoutns
-    //-const tokenProgramId = new PublicKey('SwaPpA9LAaLfeLi3a68M4DjnLqgtticKg6CnyNwgAC8');
     const tokenA = web3_js_1.Keypair.generate();
     const tokenB = web3_js_1.Keypair.generate();
     const tokenRecipient = web3_js_1.Keypair.generate();
-    //-const poolAuthority = Keypair.generate();
-    ////const poolMint = Keypair.generate();
     const poolFee = web3_js_1.Keypair.generate();
     const poolState = web3_js_1.Keypair.generate();
     // PDA of tokenSwapAccount for token swap program
@@ -51,26 +38,6 @@ We need to create below accoutns:
     //airdrop in poolState and poolFee accounts
     yield connection.confirmTransaction(yield connection.requestAirdrop(poolState.publicKey, web3_js_1.LAMPORTS_PER_SOL));
     yield connection.confirmTransaction(yield connection.requestAirdrop(poolFee.publicKey, web3_js_1.LAMPORTS_PER_SOL));
-    /*
-    //creat PDA for poolAuthority
-    const instruction = SystemProgram.createAccount({
-        fromPubkey: poolState.publicKey,
-        newAccountPubkey: poolAuthority.publicKey,
-        space: 82,
-        lamports: LAMPORTS_PER_SOL,
-        programId: tokenProgramId,
-    });
-    let transaction = new Transaction({
-        feePayer: poolState.publicKey
-    });
-    transaction.add(instruction);
-    var pdaSignature = await sendAndConfirmTransaction(
-        connection,
-        transaction,
-        [poolState, poolAuthority]
-    );
-    console.log(pdaSignature);
-    */
     // Mint for token pool.
     const tokenPool = yield (0, spl_token_1.createMint)(connection, poolFee, poolAuthority, null, 2);
     const feeTokenAccount = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, poolFee, tokenPool, poolFee.publicKey);
@@ -105,6 +72,18 @@ We need to create below accoutns:
     // Get the token accounts of the tokenRecipient address, and if they do not exist, create thtem
     const recipientTokenAAccount = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, poolFee, mintA, tokenRecipient.publicKey, true);
     const recipientTokenBAccount = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, poolFee, mintB, tokenRecipient.publicKey, true);
+    //variables
+    const SWAP_PROGRAM_OWNER_FEE_ADDRESS = process.env.SWAP_PROGRAM_OWNER_FEE_ADDRESS;
+    const TRADING_FEE_NUMERATOR = 25;
+    const TRADING_FEE_DENOMINATOR = 10000;
+    const OWNER_TRADING_FEE_NUMERATOR = 5;
+    const OWNER_TRADING_FEE_DENOMINATOR = 10000;
+    const OWNER_WITHDRAW_FEE_NUMERATOR = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 0 : 1;
+    const OWNER_WITHDRAW_FEE_DENOMINATOR = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 0 : 6;
+    const HOST_FEE_NUMERATOR = 20;
+    const HOST_FEE_DENOMINATOR = 100;
+    //////////////////////////////////
+    //////////////////////////////////
     //TokenSwap
     yield spl_token_swap_1.TokenSwap.createTokenSwap(connection, new web3_js_1.Account(poolFee.secretKey), new web3_js_1.Account(poolState.secretKey), poolAuthority, tokenAAccount.address, tokenBAccount.address, tokenPool, mintA, mintB, feeTokenAccount.address, tokenAccountPool.address, spl_token_swap_1.TOKEN_SWAP_PROGRAM_ID, spl_token_1.TOKEN_PROGRAM_ID, TRADING_FEE_NUMERATOR, TRADING_FEE_DENOMINATOR, OWNER_TRADING_FEE_NUMERATOR, OWNER_TRADING_FEE_DENOMINATOR, OWNER_WITHDRAW_FEE_NUMERATOR, OWNER_WITHDRAW_FEE_DENOMINATOR, HOST_FEE_NUMERATOR, HOST_FEE_DENOMINATOR, spl_token_swap_1.CurveType.ConstantPrice, new spl_token_swap_1.Numberu64(1));
     const fetchedTokenSwap = yield spl_token_swap_1.TokenSwap.loadTokenSwap(connection, poolState.publicKey, spl_token_swap_1.TOKEN_SWAP_PROGRAM_ID, new web3_js_1.Account(poolFee.secretKey));
@@ -117,56 +96,7 @@ We need to create below accoutns:
     console.log(`tokenRecipient account B: ${recipientTokenBAccount.address.toBase58()}`);
     const swapTransaction = yield fetchedTokenSwap.swap(recipientTokenAAccount.address, tokenAAccount.address, tokenBAccount.address, recipientTokenBAccount.address, feeTokenAccount.address, new web3_js_1.Account(tokenRecipient.secretKey), AtokensToSwap, minBTokensToReceive);
     console.log(swapTransaction);
-    /*
-    // Transfer num number of token A or B from tokenRecipient to the pool and get back the numprime number of the other token
-    let num = 2000000; //an example amount with consideration of decimals (5 for A and 6 for B)
-    let tknA = true; // 'true' for token A and 'false' for token B
-    let numPrime = calculateNumprime(num, tknA);
-
-    // Transfer the new token to the "toTokenAccount" we just created
-    var signatureRecieve;
-    var signatureSend;
-    if (tknA) {
-        signatureSend = await transfer(
-            connection,
-            tokenRecipient,
-            recipientTokenAAccount.address,
-            tokenAAccount.address,
-            tokenRecipient.publicKey,
-            num
-        );
-        signatureRecieve = await transfer(
-            connection,
-            poolFee,
-            tokenBAccount.address,
-            recipientTokenBAccount.address,
-            poolFee.publicKey,
-            numPrime
-        );
-    } else {
-        signatureSend = await transfer(
-            connection,
-            tokenRecipient,
-            recipientTokenBAccount.address,
-            tokenBAccount.address,
-            tokenRecipient.publicKey,
-            num
-        );
-        signatureRecieve = await transfer(
-            connection,
-            poolFee,
-            tokenAAccount.address,
-            recipientTokenAAccount.address,
-            poolFee.publicKey,
-            numPrime
-        );
-
-    }
-
-    // print the send and recieve the signatures
-    console.log("Send signature: ", signatureSend);
-    console.log("Recive signature: ", signatureRecieve);
-    */
+    //function to calculate the approximation of the numbers of the recieving tokens
     function calculateNumprime(n, a) {
         let tA = tokenAAccountInfo.amount;
         let tB = tokenBAccountInfo.amount;
