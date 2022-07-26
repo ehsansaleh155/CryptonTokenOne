@@ -168,7 +168,7 @@ We need to create below accoutns:
     //////////////////////////////////
 
     //TokenSwap
-    await TokenSwap.createTokenSwap(
+    const tSwap = await TokenSwap.createTokenSwap(
         connection,
         new Account(poolFee.secretKey),
         new Account(poolState.secretKey),
@@ -194,12 +194,14 @@ We need to create below accoutns:
         new Numberu64(1),
     );
 
+    /*
     const fetchedTokenSwap = await TokenSwap.loadTokenSwap(
         connection,
         poolState.publicKey,
         TOKEN_SWAP_PROGRAM_ID,
         new Account(poolFee.secretKey)
     );
+    */
 
     const tokensToMintTotokenRecipient = 10_000;
     const AtokensToSwap = 2_000;
@@ -211,7 +213,7 @@ We need to create below accoutns:
     console.log(`tokenRecipient account A: ${recipientTokenAAccount.address.toBase58()}`);
     console.log(`tokenRecipient account B: ${recipientTokenBAccount.address.toBase58()}`);
 
-    const swapTransaction = await fetchedTokenSwap.swap(recipientTokenAAccount.address, tokenAAccount.address, tokenBAccount.address, recipientTokenBAccount.address, feeTokenAccount.address, new Account(tokenRecipient.secretKey), AtokensToSwap, minBTokensToReceive);
+    const swapTransaction = await tSwap.swap(recipientTokenAAccount.address, tokenAAccount.address, tokenBAccount.address, recipientTokenBAccount.address, feeTokenAccount.address, new Account(tokenRecipient.secretKey), AtokensToSwap, minBTokensToReceive);
     console.log(swapTransaction);
 
     //function to calculate the approximation of the numbers of the recieving tokens

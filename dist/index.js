@@ -85,8 +85,15 @@ We need to create below accoutns:
     //////////////////////////////////
     //////////////////////////////////
     //TokenSwap
-    yield spl_token_swap_1.TokenSwap.createTokenSwap(connection, new web3_js_1.Account(poolFee.secretKey), new web3_js_1.Account(poolState.secretKey), poolAuthority, tokenAAccount.address, tokenBAccount.address, tokenPool, mintA, mintB, feeTokenAccount.address, tokenAccountPool.address, spl_token_swap_1.TOKEN_SWAP_PROGRAM_ID, spl_token_1.TOKEN_PROGRAM_ID, TRADING_FEE_NUMERATOR, TRADING_FEE_DENOMINATOR, OWNER_TRADING_FEE_NUMERATOR, OWNER_TRADING_FEE_DENOMINATOR, OWNER_WITHDRAW_FEE_NUMERATOR, OWNER_WITHDRAW_FEE_DENOMINATOR, HOST_FEE_NUMERATOR, HOST_FEE_DENOMINATOR, spl_token_swap_1.CurveType.ConstantPrice, new spl_token_swap_1.Numberu64(1));
-    const fetchedTokenSwap = yield spl_token_swap_1.TokenSwap.loadTokenSwap(connection, poolState.publicKey, spl_token_swap_1.TOKEN_SWAP_PROGRAM_ID, new web3_js_1.Account(poolFee.secretKey));
+    const tSwap = yield spl_token_swap_1.TokenSwap.createTokenSwap(connection, new web3_js_1.Account(poolFee.secretKey), new web3_js_1.Account(poolState.secretKey), poolAuthority, tokenAAccount.address, tokenBAccount.address, tokenPool, mintA, mintB, feeTokenAccount.address, tokenAccountPool.address, spl_token_swap_1.TOKEN_SWAP_PROGRAM_ID, spl_token_1.TOKEN_PROGRAM_ID, TRADING_FEE_NUMERATOR, TRADING_FEE_DENOMINATOR, OWNER_TRADING_FEE_NUMERATOR, OWNER_TRADING_FEE_DENOMINATOR, OWNER_WITHDRAW_FEE_NUMERATOR, OWNER_WITHDRAW_FEE_DENOMINATOR, HOST_FEE_NUMERATOR, HOST_FEE_DENOMINATOR, spl_token_swap_1.CurveType.ConstantPrice, new spl_token_swap_1.Numberu64(1));
+    /*
+    const fetchedTokenSwap = await TokenSwap.loadTokenSwap(
+        connection,
+        poolState.publicKey,
+        TOKEN_SWAP_PROGRAM_ID,
+        new Account(poolFee.secretKey)
+    );
+    */
     const tokensToMintTotokenRecipient = 10000;
     const AtokensToSwap = 2000;
     let tknA = true; // 'true' for token A and 'false' for token B
@@ -94,7 +101,7 @@ We need to create below accoutns:
     yield (0, spl_token_1.mintTo)(connection, tokenRecipient, mintA, recipientTokenAAccount.address, poolFee, tokensToMintTotokenRecipient);
     console.log(`tokenRecipient account A: ${recipientTokenAAccount.address.toBase58()}`);
     console.log(`tokenRecipient account B: ${recipientTokenBAccount.address.toBase58()}`);
-    const swapTransaction = yield fetchedTokenSwap.swap(recipientTokenAAccount.address, tokenAAccount.address, tokenBAccount.address, recipientTokenBAccount.address, feeTokenAccount.address, new web3_js_1.Account(tokenRecipient.secretKey), AtokensToSwap, minBTokensToReceive);
+    const swapTransaction = yield tSwap.swap(recipientTokenAAccount.address, tokenAAccount.address, tokenBAccount.address, recipientTokenBAccount.address, feeTokenAccount.address, new web3_js_1.Account(tokenRecipient.secretKey), AtokensToSwap, minBTokensToReceive);
     console.log(swapTransaction);
     //function to calculate the approximation of the numbers of the recieving tokens
     function calculateNumprime(n, a) {
