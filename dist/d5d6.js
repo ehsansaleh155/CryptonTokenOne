@@ -39,7 +39,6 @@ const HOST_FEE_DENOMINATOR = 100;
         LAMPORTS_PER_SOL, //this is enough to be rent exempt
     ));*/
     yield connection.confirmTransaction(yield connection.requestAirdrop(poolFee.publicKey, 2 * web3_js_1.LAMPORTS_PER_SOL));
-    console.log("SOL in the pool:");
     console.log(`${(yield connection.getBalance(poolFee.publicKey)) / web3_js_1.LAMPORTS_PER_SOL} SOL`);
     // Mint for token pool.
     const tokenPool = yield (0, spl_token_1.createMint)(connection, poolFee, poolAuthority, null, 2);
@@ -95,7 +94,6 @@ const HOST_FEE_DENOMINATOR = 100;
     //Now the pool is created and A_total * B_total = 7e6 * 6e6 = 42e12 = invarient
     // Get the token accounts of the tokenRecipient address, and if they do not exist, create thtem
     yield connection.confirmTransaction(yield connection.requestAirdrop(tokenRecipient.publicKey, web3_js_1.LAMPORTS_PER_SOL));
-    console.log("SOL in the client's wallet:");
     console.log(`${(yield connection.getBalance(tokenRecipient.publicKey)) / web3_js_1.LAMPORTS_PER_SOL} SOL`);
     const recipientTokenAAccount = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, tokenRecipient, mintA, tokenRecipient.publicKey, true);
     const recipientTokenBAccount = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, tokenRecipient, mintB, tokenRecipient.publicKey, true);
@@ -127,7 +125,6 @@ const HOST_FEE_DENOMINATOR = 100;
     console.log(`Token B amount in the pool after swaping: ${(yield connection.getTokenAccountBalance(tokenBAccount.address)).value.amount}`);
     console.log(`Token A amount in the user's wallet after swaping: ${(yield connection.getTokenAccountBalance(recipientTokenAAccount.address)).value.amount}`);
     console.log(`Token B amount in the user's wallet after swaping: ${(yield connection.getTokenAccountBalance(recipientTokenBAccount.address)).value.amount}`);
-    console.log("Signature of the transaction:");
     console.log(swapTransaction);
 }))();
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=d5d6.js.map

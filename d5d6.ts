@@ -10,7 +10,10 @@ import {
     mintToChecked,
     TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
+//import { createMint, getOrCreateAssociatedTokenAccount, mintTo, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { CurveType, Numberu64, TokenSwap, TOKEN_SWAP_PROGRAM_ID } from '@solana/spl-token-swap';
+
+//const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
 
 const SWAP_PROGRAM_OWNER_FEE_ADDRESS =
     process.env.SWAP_PROGRAM_OWNER_FEE_ADDRESS;
@@ -29,9 +32,9 @@ const HOST_FEE_DENOMINATOR = 100;
     const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 
     // accoutns
+    const tokenRecipient = Keypair.generate();
     const poolFee = Keypair.generate();
     const poolState = Keypair.generate();
-    const tokenRecipient = Keypair.generate();
 
     // PDA of tokenSwapAccount for token swap program
     const [poolAuthority, _bumpSeed] = await PublicKey.findProgramAddress(
@@ -48,7 +51,6 @@ const HOST_FEE_DENOMINATOR = 100;
         poolFee.publicKey,
         2 * LAMPORTS_PER_SOL,
     ));
-    console.log("SOL in the pool:");
     console.log(
         `${(await connection.getBalance(poolFee.publicKey)) / LAMPORTS_PER_SOL} SOL`
     );
@@ -155,7 +157,6 @@ const HOST_FEE_DENOMINATOR = 100;
         tokenRecipient.publicKey,
         LAMPORTS_PER_SOL,
     ));
-    console.log("SOL in the client's wallet:");
     console.log(
         `${(await connection.getBalance(tokenRecipient.publicKey)) / LAMPORTS_PER_SOL} SOL`
     );
@@ -255,6 +256,5 @@ const HOST_FEE_DENOMINATOR = 100;
     console.log(`Token B amount in the pool after swaping: ${(await connection.getTokenAccountBalance(tokenBAccount.address)).value.amount}`);
     console.log(`Token A amount in the user's wallet after swaping: ${(await connection.getTokenAccountBalance(recipientTokenAAccount.address)).value.amount}`);
     console.log(`Token B amount in the user's wallet after swaping: ${(await connection.getTokenAccountBalance(recipientTokenBAccount.address)).value.amount}`);
-    console.log("Signature of the transaction:");
     console.log(swapTransaction);
 })();

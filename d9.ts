@@ -40,15 +40,10 @@ const HOST_FEE_DENOMINATOR = 100;
     );
 
     //airdrop in poolState and poolFee accounts
-    /*await connection.confirmTransaction(await connection.requestAirdrop(
-        poolState.publicKey,
-        LAMPORTS_PER_SOL, //this is enough to be rent exempt
-    ));*/
     await connection.confirmTransaction(await connection.requestAirdrop(
         poolFee.publicKey,
         2 * LAMPORTS_PER_SOL,
     ));
-    console.log("SOL in the pool:");
     console.log(
         `${(await connection.getBalance(poolFee.publicKey)) / LAMPORTS_PER_SOL} SOL`
     );
@@ -75,7 +70,7 @@ const HOST_FEE_DENOMINATOR = 100;
         poolFee.publicKey,
         //tokenA.publicKey,
         null,
-        5 // We are using 5 for decimal
+        9
     );
     /* const mintAInfo = await getMint(
         connection,
@@ -98,20 +93,9 @@ const HOST_FEE_DENOMINATOR = 100;
         mintA,
         tokenAAccount.address,
         poolFee,
-        700_000_000 // because decimals for the mint are set to 5 => 4000
+        4_000_000
     );
-    /*await mintToChecked(
-        connection,
-        poolFee,
-        mintA,
-        tokenAAccount.address,
-        poolFee, // mint authority
-        400_000_000, // amount. if your decimals is 8, you mint 10^8 for 1 token.
-        5 // decimals
-    );*/
-    /* console.log("Mint A balance: ", mintAInfo.supply);
-    console.log("Token A account balance: ", tokenAAccountInfo.amount); */
-    console.log(`Token A amount in the pool befroe swaping: ${(await connection.getTokenAccountBalance(tokenAAccount.address)).value.amount}`);
+    console.log(`Token A amount in the pool: ${(await connection.getTokenAccountBalance(tokenAAccount.address)).value.amount}`);
 
     //mint token B
     const mintB = await createMint(
@@ -120,7 +104,7 @@ const HOST_FEE_DENOMINATOR = 100;
         poolFee.publicKey,
         //tokenB.publicKey,
         null,
-        6 // different token decimal
+        9
     );
     /* const mintBInfo = await getMint(
         connection,
@@ -143,23 +127,20 @@ const HOST_FEE_DENOMINATOR = 100;
         mintB,
         tokenBAccount.address,
         poolFee,
-        600_000_000 // because decimals for the mint are set to 6 => 700
+        4_000_000
     );
-    /* console.log("Mint B balance: ", mintBInfo.supply);
-    console.log("Token B account balance: ", tokenBAccountInfo); */
-    console.log(`Token B amount in the pool befroe swaping: ${(await connection.getTokenAccountBalance(tokenBAccount.address)).value.amount}`);
+    console.log(`Token B amount in the pool: ${(await connection.getTokenAccountBalance(tokenBAccount.address)).value.amount}`);
 
-    //Now the pool is created and A_total * B_total = 7e6 * 6e6 = 42e12 = invarient
+    //Now the pool is created and A_total * B_total = 4e6 * 7e6 = 28e12 = invarient
     // Get the token accounts of the tokenRecipient address, and if they do not exist, create thtem
     await connection.confirmTransaction(await connection.requestAirdrop(
         tokenRecipient.publicKey,
         LAMPORTS_PER_SOL,
     ));
-    console.log("SOL in the client's wallet:");
     console.log(
         `${(await connection.getBalance(tokenRecipient.publicKey)) / LAMPORTS_PER_SOL} SOL`
     );
-
+    console.log("Hereeeeeee 0");
     const recipientTokenAAccount = await getOrCreateAssociatedTokenAccount(
         connection,
         tokenRecipient,
@@ -201,22 +182,23 @@ const HOST_FEE_DENOMINATOR = 100;
         CurveType.ConstantPrice,
         new Numberu64(1),
     );
+    console.log("Hereeeeeee 1");
 
     //function to calculate the approximation of the numbers of the recieving tokens
     function calculateNumprime(n: number, a: boolean) {
-        let tA = 7_000_000;
-        let tB = 6_000_000;
+        let tA = 4_000_000;
+        let tB = 7_000_000;
         if (a == true) {
-            return -0.9 * ((42e12 / (tA + n)) - tB) //0.9 coefficient is not important, it's just the minimum expectation so its better to have a little treshold 
+            return -0.9 * ((28e12 / (tA + n)) - tB) //0.9 coefficient is not important, it's just the minimum expectation so its better to have a little treshold 
         } else {
-            return -0.9 * ((42e12 / (tB + n)) - tA) //0.9 coefficient is not important, it's just the minimum expectation so its better to have a little treshold 
+            return -0.9 * ((28e12 / (tB + n)) - tA)
         }
     }
 
     const initialTokensToRecipient = 12_000;
-    const AtokensToSwap = 6_000;
+    const AtokensToSwap = 5_500;
     let tknA = true; // 'true' for token A and 'false' for token B
-    const expectedTokensToReceive = 1;//calculateNumprime(AtokensToSwap, tknA);
+    const expectedTokensToReceive = 1; //calculateNumprime(AtokensToSwap, tknA);
 
     await mintTo(
         connection,
@@ -227,8 +209,9 @@ const HOST_FEE_DENOMINATOR = 100;
         initialTokensToRecipient
     );
     console.log(`Token A amount in the user's wallet befroe swaping: ${(await connection.getTokenAccountBalance(recipientTokenAAccount.address)).value.amount}`);
+    console.log("Hereeeeeee 2");
 
-    await mintTo(
+    /* await mintTo(
         connection,
         tokenRecipient,
         mintB,
@@ -237,6 +220,7 @@ const HOST_FEE_DENOMINATOR = 100;
         initialTokensToRecipient
     );
     console.log(`Token B amount in the user's wallet befroe swaping: ${(await connection.getTokenAccountBalance(recipientTokenBAccount.address)).value.amount}`);
+    console.log("Hereeeeeee 3"); */
 
     //onsole.log(`tokenRecipient account A: ${recipientTokenAAccount.address.toBase58()}`);
     //console.log(`tokenRecipient account B: ${recipientTokenBAccount.address.toBase58()}`);
@@ -251,10 +235,6 @@ const HOST_FEE_DENOMINATOR = 100;
         AtokensToSwap,
         expectedTokensToReceive
     );
-    console.log(`Token A amount in the pool after swaping: ${(await connection.getTokenAccountBalance(tokenAAccount.address)).value.amount}`);
-    console.log(`Token B amount in the pool after swaping: ${(await connection.getTokenAccountBalance(tokenBAccount.address)).value.amount}`);
-    console.log(`Token A amount in the user's wallet after swaping: ${(await connection.getTokenAccountBalance(recipientTokenAAccount.address)).value.amount}`);
-    console.log(`Token B amount in the user's wallet after swaping: ${(await connection.getTokenAccountBalance(recipientTokenBAccount.address)).value.amount}`);
-    console.log("Signature of the transaction:");
+    console.log("Hereeeeeee 4");
     console.log(swapTransaction);
 })();
